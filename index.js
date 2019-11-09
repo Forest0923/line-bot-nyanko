@@ -21,7 +21,6 @@ const client = new line.Client(config);
 // create Express app
 const app = express();
 
-// app.get();
 app.post('/', line.middleware(config), (req, res) => {
   Promise
   .all(req.body.events.map(handleEvent))
@@ -111,7 +110,10 @@ function check_db(){
     .then(($) => {
       return $('.news').text();
     }).then((news) => {
-      console.log("news: " + news);
+      news = news
+              .replace('\n更新履歴\n', '[更新履歴]')
+              .replace(/\n\n[\s\S]*?\n\n/, '\n');
+      console.log(news);
       const path2log = 'news.log';
       fs.lstat(path2log, (err) => {
         if(err){
@@ -121,7 +123,7 @@ function check_db(){
         if(log == news){
           return;
         }else{
-          push(news + "\n" + url);
+          push(news + '\n' + url);
           fs.writeFileSync(path2log, news);
         }
       });
@@ -141,8 +143,9 @@ function push(message){
 const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`listening on ${PORT}`);
-  cron.schedule('*/30 * * * * *', () => {
-    console.log('trigger\n');
+  // check_db();
+  cron.schedule('* */30 * * * *', () => {
+    console.log('run check_db()\n');
     check_db();
   });
 });
