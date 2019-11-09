@@ -3,6 +3,10 @@
 const express = require('express');
 const line = require('@line/bot-sdk');
 require('dotenv').config();
+const fs = require('fs');
+const rp = require('request-promise');
+const cheerio = require('cheerio');
+const cron = require('node-cron');
 
 // create LINE SDK config from env variables
 const config = {
@@ -10,8 +14,10 @@ const config = {
   channelSecret: process.env.CHANNEL_SECRET,
   channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN
 };
+
 // create LINE SDK client
 const client = new line.Client(config);
+
 // create Express app
 const app = express();
 
@@ -94,7 +100,49 @@ function handleEvent(event){
   }
 }
 
+function check_db(){
+  const options = {
+    transform: (body) => {
+      return cheerio.load(body);
+    }
+  };
+  const url = 'https://battlecats-db.com/';
+  rp.get(url, options)
+    .then(($) => {
+      return $('.news').text();
+    }).then((news) => {
+      console.log("news: " + news);
+      const path2log = 'news.log';
+      fs.lstat(path2log, (err) => {
+        if(err){
+          fs.writeFileSync(path2log, '');
+        }
+        let log = fs.readFileSync(path2log, 'utf-8');
+        if(log == news){
+          return;
+        }else{
+          push(news + "\n" + url);
+          fs.writeFileSync(path2log, news);
+        }
+      });
+    }).catch((error) => {
+      console.error('Error:', error);
+    });
+}
+
+function push(message){
+  return client.broadcast({
+    type: "text",
+    text: message
+  }).then(data => console.log("push: " + data))
+    .catch(e => console.log("push: " + e))
+}
+
 const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`listening on ${PORT}`);
+  cron.schedule('*/30 * * * * *', () => {
+    console.log('trigger\n');
+    check_db();
+  });
 });
