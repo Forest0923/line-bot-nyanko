@@ -7,6 +7,7 @@ const fs = require('fs');
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 const cron = require('node-cron');
+const http = require('http');
 
 // create LINE SDK config from env variables
 const config = {
@@ -20,6 +21,11 @@ const client = new line.Client(config);
 
 // create Express app
 const app = express();
+
+app.get("/", (request, response) => {
+  console.log(Date.now() + " Ping Received");
+  response.sendStatus(200);
+});
 
 app.post('/', line.middleware(config), (req, res) => {
   Promise
@@ -149,3 +155,7 @@ app.listen(PORT, () => {
     check_db();
   });
 });
+
+setInterval(() => {
+  http.get(`${process.env.PROJECT_DOMAIN}`);
+}, 120000);
