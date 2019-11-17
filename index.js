@@ -150,7 +150,7 @@ const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`listening on ${PORT}`);
   // check_db();
-  cron.schedule('* */30 * * * *', () => {
+  cron.schedule('0 */30 * * * *', () => {
     console.log('run check_db()\n');
     check_db();
   });
