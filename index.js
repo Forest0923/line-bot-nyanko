@@ -106,6 +106,7 @@ function handleEvent(event){
 }
 
 function check_db(){
+  push(Date.now + 'run check_db()');
   const options = {
     transform: (body) => {
       return cheerio.load(body);
