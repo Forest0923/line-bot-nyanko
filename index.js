@@ -162,6 +162,5 @@ app.listen(PORT, () => {
 // }, 120000);
 
 cron.schedule('0 */3 * * * *', () =>{
-  console.log('ping\n');
-  http.get(`${process.env.PROJECT_DOMAIN}`);
+  http.get('http://forest0923-glitch-keep-alive.glitch.me');
 })
