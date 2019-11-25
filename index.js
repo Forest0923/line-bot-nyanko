@@ -157,6 +157,11 @@ app.listen(PORT, () => {
   });
 });
 
-setInterval(() => {
+// setInterval(() => {
+//   http.get(`${process.env.PROJECT_DOMAIN}`);
+// }, 120000);
+
+cron.schedule('0 */3 * * * *', () =>{
+  console.log('ping\n');
   http.get(`${process.env.PROJECT_DOMAIN}`);
-}, 120000);
+})
