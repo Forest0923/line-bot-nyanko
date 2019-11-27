@@ -106,7 +106,7 @@ function handleEvent(event){
 }
 
 function check_db(){
-  push(Date.now() + 'run check_db()');
+  // push(Date.now() + 'run check_db()');
   const options = {
     transform: (body) => {
       return cheerio.load(body);
@@ -150,17 +150,12 @@ function push(message){
 const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`listening on ${PORT}`);
-  // check_db();
   cron.schedule('0 */30 * * * *', () => {
     console.log('run check_db()\n');
     check_db();
   });
 });
 
-// setInterval(() => {
-//   http.get(`${process.env.PROJECT_DOMAIN}`);
-// }, 120000);
-
 cron.schedule('0 */3 * * * *', () =>{
   http.get('http://forest0923-glitch-keep-alive.glitch.me');
-})
+});
